@@ -6,6 +6,16 @@ import json
 
 DATASETS_DIR="datasets"
 FEATURE_COLUMN_FILE="features.json"
+SELECTED_MODEL_FILE="selected_model.json"
+
+models={
+    "LogisticRegression":{},
+    "SVC":{},
+    "MLPClassifier":{},
+    "GaussianNB":{},
+    "MultiNomialNB":{}
+    
+}
 
 @app.route('/')
 def Home():
@@ -31,7 +41,7 @@ def post_dataset():
 def load_features_columns():
     if os.path.exists(FEATURE_COLUMN_FILE):
         with open(FEATURE_COLUMN_FILE, 'r') as f:
-            json.load(f)
+            return json.load(f)
     return []
 
 def save_feature_columns(columns):
@@ -65,6 +75,28 @@ def get_unselected_columns():
         return jsonify({'unselcted_columns':unselcted_columns})
     else:
         return jsonify({'error':'Dataset Not Found'}), 404
-
     
+def save_selected_model(model_name):
+    with open(SELECTED_MODEL_FILE, 'w') as f:
+        # json.dump({'model':model_name}, f)
+        f.write(json.dumps({"models":list(model_name)}))
+
+def load_selcted_model():
+    if os.path.exists(SELECTED_MODEL_FILE):
+        with open(SELECTED_MODEL_FILE, 'r') as f:
+            return json.load(f).get('model', '')
+    return ''
+
+@app.route('/models', methods=["GET"])
+def get_models():
+    return jsonify({"models":list(models.keys())})
+
+@app.route('/models', methods=["POST"])
+def select_model():
+    data=request.json
+    selected_model=data.get('model')
+    print(selected_model)
+    save_selected_model(selected_model)
+    print("The selected model", selected_model)
+    return jsonify({'Success':True, 'selcted_model':selected_model})
 
