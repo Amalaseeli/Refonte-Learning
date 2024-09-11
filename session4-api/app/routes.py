@@ -9,11 +9,46 @@ FEATURE_COLUMN_FILE="features.json"
 SELECTED_MODEL_FILE="selected_model.json"
 
 models={
-    "LogisticRegression":{},
-    "SVC":{},
-    "MLPClassifier":{},
-    "GaussianNB":{},
-    "MultiNomialNB":{}
+    "LogisticRegression":{
+        "Type":"Classification",
+        "hyperparamaeters":{
+            "c":1.0,
+            "solver":"lbfgs"
+            }
+            },
+    "SVC":{
+        "Type":"Classification",
+        "description":"SVC is a supervised learning algorithm for classification. It finds an optimal hyperplane in an N dimensional space",
+        "hyperparameters":{
+            "c":"float(defaulit =1.0)",
+            "kernel":"str(default='rbf')",
+            "gamma":"float(default='scale')"
+
+        }
+    },
+    "MLPClassifier":{
+        "Type":"Classification",
+        "description":"MLP Classifier is a type of artificial neural network known as a multi layer perceptron. It can be used for classification and regression.",
+        "hyperparameters":{
+            "hidden_layer_sizes":"tuple(default(100,))",
+            "activation":"str(default='relu')",
+            "solver":"str(default='adam'",
+            "alpha":"float(default=0.0001)"
+        }
+    },
+    "GaussianNB":{
+        "Type":"Classification",
+        "description":"GausianNB is a simple classification algorithm based on Bayes' theorem with a gausian naive assumption. It assume that features are independent.",
+        "hyperparameters":{}
+    },
+    "MultiNomialNB":{
+        "Type":"Classification",
+        "description":"MultiNomialNB is a variant of the naive Bayes algorithm, suitable for data with multinomial distribution, such as word counts in text data.It is widely used in NLP tasks.",
+        "hyperparameters":{
+            "alpha":"float(default=1.0)",
+            "fit_prior":"bool(default=True)"
+        }
+    }
     
 }
 
@@ -99,4 +134,15 @@ def select_model():
     save_selected_model(selected_model)
     print("The selected model", selected_model)
     return jsonify({'Success':True, 'selcted_model':selected_model})
+
+@app.route('/model_details', methods=['POST'])
+def get_model_details():
+    model_name=request.json.get('model')
+    if model_name:
+        if model_name in models:
+            return jsonify(models[model_name])
+        else:
+            return jsonify({"error":"model not found"}), 404
+    else:
+        return jsonify({"error":"model_name not provided"}), 400
 
